@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Random Race Generator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <h1>Random Race Generator</h1>
+    <p class="intro">
+      Pick a racing series, choose a real race from the current season calendar, and simulate a full event with real drivers.
+    </p>
+
+    <section class="controls">
+      <label>
+        Series
+        <select id="seriesSelect"></select>
+      </label>
+
+      <label>
+        Race
+        <select id="raceSelect"></select>
+      </label>
+
+      <button id="simulateBtn">Simulate Race</button>
+    </section>
+
+    <section class="results" id="results" hidden>
+      <h2 id="resultsTitle"></h2>
+      <div class="podium" id="podium"></div>
+
+      <h3>Top 10</h3>
+      <ol id="topTen" class="top-ten"></ol>
+
+      <h3>Race Summary</h3>
+      <p id="summary"></p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
