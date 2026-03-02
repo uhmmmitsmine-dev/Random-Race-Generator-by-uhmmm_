@@ -4,6 +4,7 @@ const seasonData = {
   f1: {
     name: "Formula 1",
     year: 2025,
+    lapRange: [50, 78],
     races: [
       "Australian Grand Prix", "Chinese Grand Prix", "Japanese Grand Prix", "Bahrain Grand Prix", "Saudi Arabian Grand Prix",
       "Miami Grand Prix", "Emilia Romagna Grand Prix", "Monaco Grand Prix", "Spanish Grand Prix", "Canadian Grand Prix",
@@ -37,6 +38,7 @@ const seasonData = {
   nascar: {
     name: "NASCAR Cup Series",
     year: 2025,
+    lapRange: [267, 400],
     races: [
       "Daytona 500", "Ambetter Health 400 (Atlanta)", "Pennzoil 400 (Las Vegas)", "Shriners Children's 500 (Phoenix)",
       "Food City 500 (Bristol)", "Toyota Owners 400 (Richmond)", "GEICO 500 (Talladega)", "AdventHealth 400 (Kansas)",
@@ -70,6 +72,7 @@ const seasonData = {
   wec: {
     name: "FIA World Endurance Championship",
     year: 2025,
+    lapRange: [140, 380],
     races: [
       "Qatar 1812km", "6 Hours of Imola", "6 Hours of Spa-Francorchamps", "24 Hours of Le Mans",
       "6 Hours of São Paulo", "Lone Star Le Mans (COTA)", "6 Hours of Fuji", "8 Hours of Bahrain"
@@ -104,13 +107,20 @@ const raceSelect = document.getElementById("raceSelect");
 const simulateBtn = document.getElementById("simulateBtn");
 const results = document.getElementById("results");
 const resultsTitle = document.getElementById("resultsTitle");
+const qualifyingTopTen = document.getElementById("qualifyingTopTen");
 const podium = document.getElementById("podium");
 const topTen = document.getElementById("topTen");
 const summary = document.getElementById("summary");
 const timeline = document.getElementById("timeline");
+const lapsInfo = document.getElementById("lapsInfo");
+const lapsLedBars = document.getElementById("lapsLedBars");
 
 function chance(min, max) {
   return Math.random() * (max - min) + min;
+}
+
+function randomInt(min, max) {
+  return Math.floor(chance(min, max + 1));
 }
 
 function pickUniqueDrivers(drivers, count) {
@@ -118,7 +128,7 @@ function pickUniqueDrivers(drivers, count) {
   const picks = [];
 
   while (picks.length < count && available.length > 0) {
-    const index = Math.floor(chance(0, available.length));
+    const index = randomInt(0, available.length - 1);
     picks.push(available[index]);
     available.splice(index, 1);
   }
@@ -126,26 +136,89 @@ function pickUniqueDrivers(drivers, count) {
   return picks;
 }
 
-function createRaceTimeline(classified, seriesName) {
-  const leaderPool = classified.slice(0, 5);
-  const midfieldPool = classified.slice(5, 15);
+function buildQualifyingOrder(drivers) {
+  return drivers
+    .map((driver) => {
+      const oneLapVariance = chance(-10, 10);
+      const trackEvolution = chance(-4, 4);
+      return {
+        ...driver,
+        qualifyingScore: driver.rating + oneLapVariance + trackEvolution
+      };
+    })
+    .sort((a, b) => b.qualifyingScore - a.qualifyingScore)
+    .map((driver, index) => ({ ...driver, grid: index + 1 }));
+}
 
-  const leadChanges = pickUniqueDrivers(leaderPool, 3);
-  const incidents = pickUniqueDrivers(midfieldPool, 2);
-  const fastestLapDriver = classified[Math.floor(chance(0, Math.min(10, classified.length)))];
+function generateLapCount(seriesKey, raceName, series) {
+  if (seriesKey === "f1") {
+    const map = {
+      "Monaco Grand Prix": 78,
+      "Belgian Grand Prix": 44,
+      "Las Vegas Grand Prix": 50,
+      "Qatar Grand Prix": 57,
+      "Abu Dhabi Grand Prix": 58
+    };
+    return map[raceName] || randomInt(52, 71);
+  }
 
-  const timelineEvents = [
-    { marker: "Start", text: `${classified[0].name} launches cleanly and leads into the opening phase.` },
-    { marker: "Lap 8", text: `Lead change: ${leadChanges[0]?.name || classified[1].name} takes P1 after a strong attack.` },
-    { marker: "Lap 16", text: `Crash: ${incidents[0]?.name || classified[10].name} hits trouble, bringing out a yellow flag.` },
-    { marker: "Lap 18", text: `Yellow flag period slows the field while marshals clear debris.` },
-    { marker: "Lap 26", text: `Restart complete. ${leadChanges[1]?.name || classified[2].name} moves to the front in heavy traffic.` },
-    { marker: "Lap 34", text: `${fastestLapDriver.name} sets the fastest lap of the race with a late push.` },
-    { marker: "Lap 42", text: `Second incident: ${incidents[1]?.name || classified[12].name} spins, but racing stays green.` },
-    { marker: "Finish", text: `${classified[0].name} secures victory in the ${seriesName} event.` }
+  if (seriesKey === "nascar") {
+    const map = {
+      "Daytona 500": 200,
+      "Coca-Cola 600 (Charlotte)": 400,
+      "Brickyard 400 (Indianapolis)": 160,
+      "Xfinity 500 (Martinsville)": 500,
+      "NASCAR Cup Series Championship (Phoenix)": 312
+    };
+    return map[raceName] || randomInt(267, 367);
+  }
+
+  if (seriesKey === "wec") {
+    const map = {
+      "24 Hours of Le Mans": randomInt(340, 390),
+      "8 Hours of Bahrain": randomInt(220, 270),
+      "6 Hours of Imola": randomInt(180, 230),
+      "6 Hours of Spa-Francorchamps": randomInt(165, 215)
+    };
+    return map[raceName] || randomInt(series.lapRange[0], series.lapRange[1]);
+  }
+
+  return randomInt(series.lapRange[0], series.lapRange[1]);
+}
+
+function generateLapsLed(classified, totalLaps) {
+  const leadCandidates = classified.slice(0, 6);
+  const leadDrivers = pickUniqueDrivers(leadCandidates, randomInt(3, 5));
+  let remaining = totalLaps;
+
+  const allocations = leadDrivers.map((driver, index) => {
+    if (index === leadDrivers.length - 1) {
+      return { driver, lapsLed: remaining };
+    }
+    const minLeft = leadDrivers.length - index - 1;
+    const laps = randomInt(5, Math.max(6, remaining - minLeft));
+    remaining -= laps;
+    return { driver, lapsLed: laps };
+  });
+
+  return allocations.sort((a, b) => b.lapsLed - a.lapsLed);
+}
+
+function createRaceTimeline(classified, seriesName, qualifyingResult, totalLaps, leadStats) {
+  const poleSitter = qualifyingResult[0];
+  const leadOne = leadStats[0]?.driver.name || classified[0].name;
+  const leadTwo = leadStats[1]?.driver.name || classified[1].name;
+  const crashDriver = classified[randomInt(8, 14)]?.name || classified[10].name;
+
+  return [
+    { marker: "Quali", text: `${poleSitter.name} starts from pole after topping qualifying.` },
+    { marker: `Lap ${randomInt(1, 4)}`, text: `${leadOne} leads the opening run.` },
+    { marker: `Lap ${Math.floor(totalLaps * 0.25)}`, text: `Lead change: ${leadTwo} moves to P1 after a strong stint.` },
+    { marker: `Lap ${Math.floor(totalLaps * 0.4)}`, text: `Crash: ${crashDriver} hits trouble and triggers a yellow flag.` },
+    { marker: `Lap ${Math.floor(totalLaps * 0.45)}`, text: `Restart complete. ${leadOne} retakes control at the front.` },
+    { marker: `Lap ${Math.floor(totalLaps * 0.7)}`, text: `${classified[2].name} joins the fight for the win in late-race traffic.` },
+    { marker: "Finish", text: `${classified[0].name} wins the ${seriesName} event after ${totalLaps} laps.` }
   ];
-
-  return timelineEvents;
 }
 
 function populateSeries() {
@@ -165,41 +238,51 @@ function populateRaces() {
 
 function runSimulation(seriesKey, raceName) {
   const series = seasonData[seriesKey];
+  const totalLaps = generateLapCount(seriesKey, raceName, series);
+  const qualifyingResult = buildQualifyingOrder(series.drivers);
 
-  const classified = series.drivers
+  const raceResult = qualifyingResult
     .map((driver) => {
-      const formBoost = chance(-6, 7);
+      const raceVariance = chance(-18, 18);
+      const strategySwing = chance(-8, 8);
+      const launchBonus = chance(0, 10) - driver.grid * 0.35;
+      const overtakingChaos = chance(-10, 12);
       const incidentRisk = chance(0, 100);
-      const incidentPenalty = incidentRisk > 92 ? chance(18, 45) : 0;
-      const pace = driver.rating + formBoost - incidentPenalty;
+      const incidentPenalty = incidentRisk > 88 ? chance(12, 40) : 0;
 
       return {
         ...driver,
-        pace
+        raceScore: driver.rating + raceVariance + strategySwing + launchBonus + overtakingChaos - incidentPenalty
       };
     })
-    .sort((a, b) => b.pace - a.pace);
+    .sort((a, b) => b.raceScore - a.raceScore);
 
-  const winner = classified[0];
-  const p2 = classified[1];
-  const p3 = classified[2];
-  const timelineEvents = createRaceTimeline(classified, series.name);
+  const winner = raceResult[0];
+  const p2 = raceResult[1];
+  const p3 = raceResult[2];
+  const poleSitter = qualifyingResult[0];
+  const leadStats = generateLapsLed(raceResult, totalLaps);
+  const timelineEvents = createRaceTimeline(raceResult, series.name, qualifyingResult, totalLaps, leadStats);
 
   return {
     series,
     raceName,
-    results: classified,
+    totalLaps,
+    qualifyingResult,
+    results: raceResult,
+    leadStats,
     timelineEvents,
-    story: `${winner.name} delivered a strong run in the ${raceName}, taking victory for ${winner.team}. ${p2.name} and ${p3.name} completed the podium after a competitive race with multiple position changes throughout the field.`
+    story: `${winner.name} won the ${raceName} for ${winner.team} after ${totalLaps} laps. Pole sitter ${poleSitter.name} started first but race-day variance and strategy shifts changed the order. ${p2.name} and ${p3.name} completed the podium.`
   };
 }
 
 function renderSimulation(simResult) {
-  const { series, raceName, results: fullResults, timelineEvents, story } = simResult;
+  const { series, raceName, totalLaps, qualifyingResult, results: fullResults, leadStats, timelineEvents, story } = simResult;
   results.hidden = false;
 
   resultsTitle.textContent = `${series.name} — ${raceName}`;
   summary.textContent = `${story} Season data shown is ${series.year}, which is the latest verified real-driver roster in this generator (current year: ${CURRENT_YEAR}).`;
+  lapsInfo.textContent = `Simulated race distance: ${totalLaps} laps`;
 
   const medal = ["🥇", "🥈", "🥉"];
   podium.innerHTML = fullResults
@@ -208,15 +291,36 @@ function renderSimulation(simResult) {
       (driver, index) => `
       <article class="podium-card">
         <h4>${medal[index]} P${index + 1}: ${driver.name}</h4>
-        <p>${driver.team}</p>
+        <p>${driver.team} (started P${driver.grid})</p>
       </article>
     `
     )
     .join("");
 
-  topTen.innerHTML = fullResults
+  qualifyingTopTen.innerHTML = qualifyingResult
     .slice(0, 10)
     .map((driver, index) => `<li>P${index + 1} — ${driver.name} (${driver.team})</li>`)
+    .join("");
+
+  topTen.innerHTML = fullResults
+    .slice(0, 10)
+    .map((driver, index) => `<li>P${index + 1} — ${driver.name} (${driver.team}) • Started P${driver.grid}</li>`)
+    .join("");
+
+  const largestLead = Math.max(...leadStats.map((entry) => entry.lapsLed));
+  lapsLedBars.innerHTML = leadStats
+    .map((entry) => {
+      const width = Math.max(10, Math.round((entry.lapsLed / largestLead) * 100));
+      return `
+      <div class="lead-bar-row">
+        <div class="lead-bar-label">${entry.driver.name}</div>
+        <div class="lead-bar-track">
+          <div class="lead-bar-fill" style="width:${width}%"></div>
+        </div>
+        <div class="lead-bar-value">${entry.lapsLed}</div>
+      </div>
+      `;
+    })
     .join("");
 
   timeline.innerHTML = timelineEvents
