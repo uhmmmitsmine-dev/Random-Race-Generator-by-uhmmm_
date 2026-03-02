@@ -69,6 +69,40 @@ const seasonData = {
       { name: "Austin Dillon", team: "Richard Childress Racing", rating: 80 }
     ]
   },
+  indycar: {
+    name: "NTT INDYCAR SERIES",
+    year: 2025,
+    lapRange: [85, 260],
+    races: [
+      "Firestone Grand Prix of St. Petersburg", "The Thermal Club IndyCar Grand Prix", "Acura Grand Prix of Long Beach",
+      "Children's of Alabama Indy Grand Prix", "Sonsio Grand Prix (Indianapolis Road Course)", "Indianapolis 500",
+      "Detroit Grand Prix", "Bommarito Automotive Group 500 (Gateway)", "XPEL Grand Prix at Road America",
+      "Honda Indy 200 at Mid-Ohio", "Iowa Speedway Race 1", "Iowa Speedway Race 2", "Ontario Honda Dealers Indy Toronto",
+      "Hy-Vee Milwaukee Mile Race 1", "Hy-Vee Milwaukee Mile Race 2", "Big Machine Music City Grand Prix"
+    ],
+    drivers: [
+      { name: "Alex Palou", team: "Chip Ganassi Racing", rating: 97 },
+      { name: "Scott Dixon", team: "Chip Ganassi Racing", rating: 95 },
+      { name: "Marcus Ericsson", team: "Andretti Global", rating: 90 },
+      { name: "Colton Herta", team: "Andretti Global", rating: 92 },
+      { name: "Kyle Kirkwood", team: "Andretti Global", rating: 89 },
+      { name: "Josef Newgarden", team: "Team Penske", rating: 95 },
+      { name: "Will Power", team: "Team Penske", rating: 92 },
+      { name: "Scott McLaughlin", team: "Team Penske", rating: 93 },
+      { name: "Pato O'Ward", team: "Arrow McLaren", rating: 93 },
+      { name: "Alexander Rossi", team: "Arrow McLaren", rating: 89 },
+      { name: "Christian Lundgaard", team: "Arrow McLaren", rating: 88 },
+      { name: "Rinus VeeKay", team: "Ed Carpenter Racing", rating: 84 },
+      { name: "Ed Carpenter", team: "Ed Carpenter Racing", rating: 80 },
+      { name: "Felix Rosenqvist", team: "Meyer Shank Racing", rating: 86 },
+      { name: "Marcus Armstrong", team: "Meyer Shank Racing", rating: 84 },
+      { name: "Santino Ferrucci", team: "A.J. Foyt Racing", rating: 83 },
+      { name: "David Malukas", team: "A.J. Foyt Racing", rating: 82 },
+      { name: "Graham Rahal", team: "Rahal Letterman Lanigan Racing", rating: 84 },
+      { name: "Christian Rasmussen", team: "Ed Carpenter Racing", rating: 79 },
+      { name: "Callum Ilott", team: "PREMA Racing", rating: 81 }
+    ]
+  },
   wec: {
     name: "FIA World Endurance Championship",
     year: 2025,
@@ -171,6 +205,22 @@ function generateLapCount(seriesKey, raceName, series) {
       "NASCAR Cup Series Championship (Phoenix)": 312
     };
     return map[raceName] || randomInt(267, 367);
+  }
+
+
+  if (seriesKey === "indycar") {
+    const map = {
+      "Indianapolis 500": 200,
+      "Bommarito Automotive Group 500 (Gateway)": 260,
+      "Iowa Speedway Race 1": 250,
+      "Iowa Speedway Race 2": 250,
+      "Hy-Vee Milwaukee Mile Race 1": 250,
+      "Hy-Vee Milwaukee Mile Race 2": 250,
+      "Firestone Grand Prix of St. Petersburg": 100,
+      "Acura Grand Prix of Long Beach": 85,
+      "Honda Indy 200 at Mid-Ohio": 90
+    };
+    return map[raceName] || randomInt(90, 140);
   }
 
   if (seriesKey === "wec") {
