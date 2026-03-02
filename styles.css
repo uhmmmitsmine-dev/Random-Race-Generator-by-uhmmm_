@@ -99,3 +99,20 @@ button:hover {
 .top-ten li {
   margin-bottom: 0.2rem;
 }
+
+.timeline {
+  margin-top: 0.4rem;
+  padding-left: 1.2rem;
+}
+
+.timeline-item {
+  margin-bottom: 0.45rem;
+  line-height: 1.35;
+}
+
+.timeline-marker {
+  display: inline-block;
+  min-width: 4.6rem;
+  font-weight: 700;
+  color: #1d4ed8;
+}
