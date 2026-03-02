@@ -1,16 +1,16 @@
 :root {
-  color-scheme: light;
+  color-scheme: dark;
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
 }
 
 body {
   margin: 0;
-  background: #f4f6fb;
-  color: #111827;
+  background: #0b1220;
+  color: #e5e7eb;
 }
 
 .app {
-  max-width: 900px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 2rem 1rem 3rem;
 }
@@ -19,9 +19,13 @@ h1 {
   margin-bottom: 0.5rem;
 }
 
+h3 {
+  color: #c7d2fe;
+}
+
 .intro {
   margin-top: 0;
-  color: #374151;
+  color: #94a3b8;
 }
 
 .controls {
@@ -29,10 +33,11 @@ h1 {
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 1rem;
   align-items: end;
-  background: white;
+  background: #111827;
   padding: 1rem;
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid #1f2937;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 label {
@@ -44,10 +49,15 @@ label {
 
 select,
 button {
-  border: 1px solid #cbd5e1;
+  border: 1px solid #334155;
   border-radius: 8px;
   padding: 0.55rem 0.7rem;
   font: inherit;
+}
+
+select {
+  background: #0f172a;
+  color: #e2e8f0;
 }
 
 button {
@@ -63,10 +73,17 @@ button:hover {
 
 .results {
   margin-top: 1.5rem;
-  background: white;
+  background: #111827;
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid #1f2937;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   padding: 1rem 1.2rem 1.4rem;
+}
+
+.laps-info {
+  margin-top: 0;
+  color: #93c5fd;
+  font-weight: 700;
 }
 
 .podium {
@@ -78,8 +95,8 @@ button:hover {
 
 .podium-card {
   border-radius: 10px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background: #172554;
+  border: 1px solid #3730a3;
   padding: 0.65rem;
 }
 
@@ -90,6 +107,7 @@ button:hover {
 
 .podium-card p {
   margin: 0.2rem 0;
+  color: #cbd5e1;
 }
 
 .top-ten {
@@ -98,6 +116,42 @@ button:hover {
 
 .top-ten li {
   margin-bottom: 0.2rem;
+}
+
+.laps-led-bars {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.lead-bar-row {
+  display: grid;
+  grid-template-columns: minmax(170px, 240px) 1fr 55px;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.lead-bar-label {
+  color: #cbd5e1;
+  font-size: 0.92rem;
+}
+
+.lead-bar-track {
+  height: 14px;
+  border-radius: 999px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  overflow: hidden;
+}
+
+.lead-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22d3ee, #3b82f6);
+}
+
+.lead-bar-value {
+  text-align: right;
+  color: #93c5fd;
+  font-weight: 700;
 }
 
 .timeline {
@@ -112,7 +166,7 @@ button:hover {
 
 .timeline-marker {
   display: inline-block;
-  min-width: 4.6rem;
+  min-width: 5rem;
   font-weight: 700;
-  color: #1d4ed8;
+  color: #60a5fa;
 }
