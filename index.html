@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -24,7 +24,16 @@
         <select id="raceSelect"></select>
       </label>
 
+      <label>
+        Theme
+        <select id="themeSelect">
+          <option value="dark" selected>Dark</option>
+          <option value="light">Light</option>
+        </select>
+      </label>
+
       <button id="simulateBtn">Simulate Race</button>
+      <button id="simulateSeasonBtn" class="secondary">Sim Season</button>
     </section>
 
     <section class="results" id="results" hidden>
@@ -47,6 +56,17 @@
 
       <h3>Race Timeline</h3>
       <ol id="timeline" class="timeline"></ol>
+    </section>
+
+    <section class="results" id="seasonResults" hidden>
+      <h2 id="seasonTitle"></h2>
+      <p id="seasonSummary"></p>
+
+      <h3>Points Standings</h3>
+      <ol id="seasonStandings" class="top-ten"></ol>
+
+      <h3>Race Results (Season)</h3>
+      <ol id="seasonRaceResults" class="season-race-results"></ol>
     </section>
   </main>
 
