@@ -107,9 +107,45 @@ const resultsTitle = document.getElementById("resultsTitle");
 const podium = document.getElementById("podium");
 const topTen = document.getElementById("topTen");
 const summary = document.getElementById("summary");
+const timeline = document.getElementById("timeline");
 
 function chance(min, max) {
   return Math.random() * (max - min) + min;
+}
+
+function pickUniqueDrivers(drivers, count) {
+  const available = [...drivers];
+  const picks = [];
+
+  while (picks.length < count && available.length > 0) {
+    const index = Math.floor(chance(0, available.length));
+    picks.push(available[index]);
+    available.splice(index, 1);
+  }
+
+  return picks;
+}
+
+function createRaceTimeline(classified, seriesName) {
+  const leaderPool = classified.slice(0, 5);
+  const midfieldPool = classified.slice(5, 15);
+
+  const leadChanges = pickUniqueDrivers(leaderPool, 3);
+  const incidents = pickUniqueDrivers(midfieldPool, 2);
+  const fastestLapDriver = classified[Math.floor(chance(0, Math.min(10, classified.length)))];
+
+  const timelineEvents = [
+    { marker: "Start", text: `${classified[0].name} launches cleanly and leads into the opening phase.` },
+    { marker: "Lap 8", text: `Lead change: ${leadChanges[0]?.name || classified[1].name} takes P1 after a strong attack.` },
+    { marker: "Lap 16", text: `Crash: ${incidents[0]?.name || classified[10].name} hits trouble, bringing out a yellow flag.` },
+    { marker: "Lap 18", text: `Yellow flag period slows the field while marshals clear debris.` },
+    { marker: "Lap 26", text: `Restart complete. ${leadChanges[1]?.name || classified[2].name} moves to the front in heavy traffic.` },
+    { marker: "Lap 34", text: `${fastestLapDriver.name} sets the fastest lap of the race with a late push.` },
+    { marker: "Lap 42", text: `Second incident: ${incidents[1]?.name || classified[12].name} spins, but racing stays green.` },
+    { marker: "Finish", text: `${classified[0].name} secures victory in the ${seriesName} event.` }
+  ];
+
+  return timelineEvents;
 }
 
 function populateSeries() {
@@ -147,17 +183,19 @@ function runSimulation(seriesKey, raceName) {
   const winner = classified[0];
   const p2 = classified[1];
   const p3 = classified[2];
+  const timelineEvents = createRaceTimeline(classified, series.name);
 
   return {
     series,
     raceName,
     results: classified,
+    timelineEvents,
     story: `${winner.name} delivered a strong run in the ${raceName}, taking victory for ${winner.team}. ${p2.name} and ${p3.name} completed the podium after a competitive race with multiple position changes throughout the field.`
   };
 }
 
 function renderSimulation(simResult) {
-  const { series, raceName, results: fullResults, story } = simResult;
+  const { series, raceName, results: fullResults, timelineEvents, story } = simResult;
   results.hidden = false;
 
   resultsTitle.textContent = `${series.name} — ${raceName}`;
@@ -179,6 +217,17 @@ function renderSimulation(simResult) {
   topTen.innerHTML = fullResults
     .slice(0, 10)
     .map((driver, index) => `<li>P${index + 1} — ${driver.name} (${driver.team})</li>`)
+    .join("");
+
+  timeline.innerHTML = timelineEvents
+    .map(
+      (event) => `
+      <li class="timeline-item">
+        <span class="timeline-marker">${event.marker}</span>
+        <span>${event.text}</span>
+      </li>
+    `
+    )
     .join("");
 }
 
